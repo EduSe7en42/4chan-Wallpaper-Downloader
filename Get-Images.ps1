@@ -2,7 +2,7 @@ function Get-Images-Url
 {
     param ($siteUrl)
 
-    $html = Invoke-WebRequest -Uri $siteUrl -UseBasicParsing
+    $html = Invoke-WebRequest -Uri $siteUrl
     
     $imagesLink = 
         $html.ParsedHtml.getElementsByTagName('a') |
