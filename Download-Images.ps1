@@ -1,20 +1,31 @@
+. ./Is-Windows.ps1
+
+$verifyEnv = Is-Windows
+
 function Download-Images 
 {
-    param([string[]] $urlImages)
+    Param([string[]] $urlImages)
+    
 
     $counter = 0
 
-    if (-not (Test-Path -Path "./images/"))
+    If (-not ($verifyEnv))
     {
         New-Item -ItemType Directory -Force -Path "./4chan_images/"
     }
 
-    foreach ($url in $urlImages) 
+    ForEach ($url in $urlImages) 
     {
         $counter++
-        
-        $newUrl = $url.replace("about://", "http://")
+
+        If ($verifyEnv) {
+            $newUrl = $url.replace("about://", "https://")
+        } Else {
+            $newUrl = $url.replace("//", "https://")
+        }
+
         $filePath = "./4chan_images/image_" + $counter.ToString() + ".jpg"
         Invoke-WebRequest $newUrl -OutFile $filePath
+        Write-Host "File saved with success in " + $filePath 
     }
 }
