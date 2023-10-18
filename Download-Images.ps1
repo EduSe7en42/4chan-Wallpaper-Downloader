@@ -1,11 +1,15 @@
+. ./Is-Windows.ps1
+
+$verifyEnv = Is-Windows
+
 function Download-Images 
 {
-    param([string[]] $urlImages)
-    $env = [Environment]::OSVersion.VersionString
+    Param([string[]] $urlImages)
+    
 
     $counter = 0
 
-    If (-not (Test-Path -Path "./images/"))
+    If (-not ($verifyEnv))
     {
         New-Item -ItemType Directory -Force -Path "./4chan_images/"
     }
@@ -14,9 +18,9 @@ function Download-Images
     {
         $counter++
 
-        if ($env -contains "Windows") {
+        If ($verifyEnv) {
             $newUrl = $url.replace("about://", "https://")
-        } else {
+        } Else {
             $newUrl = $url.replace("//", "https://")
         }
 

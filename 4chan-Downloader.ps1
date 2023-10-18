@@ -7,8 +7,9 @@
 
 . ./Get-Images.ps1
 . ./Download-Images.ps1
+. ./Is-Windows.ps1
 
-$env = [Environment]::OSVersion.VersionString
+$verifyEnv = Is-Windows
 
 function mainFunction 
 {
@@ -21,17 +22,17 @@ function mainFunction
 
     $done = "Result: All downloads done."
 
-    if ($env -contains "Windows") {
+    If ($verifyEnv) {
         $ResultLabel.Text = $done
-    } else {
+    } Else {
         Write-Host $done
 
     }
 }
 
-if (-not($env -contains "Windows")) {
+If (-not($verifyEnv)) {
     mainFunction $args[0]
-} else {
+} Else {
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.Application]::EnableVisualStyles()
 
@@ -88,7 +89,7 @@ function closeForm
     $WallpaperDownloader.close() 
 }
 
-if ($env -contains "Windows") {
+If ($verifyEnv) {
     [void]$WallpaperDownloader.ShowDialog()
 }
 
