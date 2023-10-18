@@ -1,18 +1,22 @@
+. ./Is-Windows.ps1
+
+$verifyEnv = Is-Windows
+
 function Get-Images-Url 
 {
-    param ($siteUrl)
+    Param ($siteUrl)
     $env = [Environment]::OSVersion.VersionString
     $imagesLink = New-Object Collections.Generic.List[String]
 
     $html = Invoke-WebRequest -Uri $siteUrl
 
-    if ($env -contains "Windows") {
+    If ($verifyEnv) {
         $imagesLink = 
             $html.ParsedHtml.getElementsByTagName('a') |
             Where-Object { $_.className -eq 'fileThumb' } |
             Select-Object -Expand href
 
-        return $imagesLink
+        Return $imagesLink
     }
 
     If (-not (Get-Module -ErrorAction Ignore -ListAvailable PowerHTML)) {
@@ -22,7 +26,7 @@ function Get-Images-Url
 
     Import-Module -ErrorAction Stop PowerHTML
 
-    if (Test-Path -Path "index.html" -PathType leaf) {
+    If (Test-Path -Path "index.html" -PathType leaf) {
         Remove-Item -Path "./index.html"
     }
 
@@ -32,7 +36,7 @@ function Get-Images-Url
     $htmlParsed = ConvertFrom-Html -Path $pwd/index.html
     $aLink = $htmlParsed.SelectNodes("//a[contains(@class, 'fileThumb')]")
     
-    ForEach ($hn in $aLink) {
+    ForEach ($hn In $aLink) {
         $hrefValue = $hn.GetAttributeValue("href", "");
         $imagesLink.Add($hrefValue)
     }    
