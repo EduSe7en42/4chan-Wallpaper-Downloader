@@ -8,7 +8,7 @@
 . ./Get-Images.ps1
 . ./Download-Images.ps1
 . ./Is-Windows.ps1
-
+. ./Get-Wg-Boards
 $verifyEnv = Is-Windows
 
 function mainFunction 
@@ -22,9 +22,12 @@ function mainFunction
 
     $done = "Result: All downloads done."
 
-    If ($verifyEnv) {
+    If ($verifyEnv)
+    {
         $ResultLabel.Text = $done
-    } Else {
+    } 
+    Else 
+    {
         Write-Host $done
 
     }

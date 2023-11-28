@@ -1,23 +1,20 @@
 . ./Is-Windows.ps1
 
-$verifyEnv = Is-Windows
-
 function Get-Images-Url 
 {
     Param ($siteUrl)
-    $env = [Environment]::OSVersion.VersionString
     $imagesLink = New-Object Collections.Generic.List[String]
 
     $html = Invoke-WebRequest -Uri $siteUrl
 
-    If ($verifyEnv) {
-        $imagesLink = 
-            $html.ParsedHtml.getElementsByTagName('a') |
-            Where-Object { $_.className -eq 'fileThumb' } |
-            Select-Object -Expand href
+    # If ($verifyEnv) {
+    #     $imagesLink = 
+    #         $html.ParsedHtml.getElementsByTagName('a') |
+    #         Where-Object { $_.className -eq 'fileThumb' } |
+    #         Select-Object -Expand href
 
-        Return $imagesLink
-    }
+    #     Return $imagesLink
+    # }
 
     If (-not (Get-Module -ErrorAction Ignore -ListAvailable PowerHTML)) {
         Write-Verbose "Installing PowerHTML module for the current user..."
