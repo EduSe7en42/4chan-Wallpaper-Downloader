@@ -1,20 +1,9 @@
-. ./Is-Windows.ps1
-
-function Get-Images-Url 
+Function Get-Images-Url 
 {
     Param ($siteUrl)
     $imagesLink = New-Object Collections.Generic.List[String]
 
     $html = Invoke-WebRequest -Uri $siteUrl
-
-    # If ($verifyEnv) {
-    #     $imagesLink = 
-    #         $html.ParsedHtml.getElementsByTagName('a') |
-    #         Where-Object { $_.className -eq 'fileThumb' } |
-    #         Select-Object -Expand href
-
-    #     Return $imagesLink
-    # }
 
     If (-not (Get-Module -ErrorAction Ignore -ListAvailable PowerHTML)) {
         Write-Verbose "Installing PowerHTML module for the current user..."

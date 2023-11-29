@@ -1,31 +1,20 @@
-. ./Is-Windows.ps1
-
-$verifyEnv = Is-Windows
-
-function Download-Images 
+Function Download-Images 
 {
     Param([string[]] $urlImages)
-    
 
-    $counter = 0
+    $folderName = "./4chan_images/"
 
-    If (-not ($verifyEnv))
-    {
-        New-Item -ItemType Directory -Force -Path "./4chan_images/"
+    If (-Not(Test-Path $folderName)) {
+        New-Item $folderName -ItemType Directory
     }
 
-    ForEach ($url in $urlImages) 
-    {
-        $counter++
+    $urlImages | ForEach-Object -ThrottleLimit 50 -Parallel  {
+        $counter = Get-Random
 
-        If ($verifyEnv) {
-            $newUrl = $url.replace("about://", "https://")
-        } Else {
-            $newUrl = $url.replace("//", "https://")
-        }
-
-        $filePath = "./4chan_images/image_" + $counter.ToString() + ".jpg"
-        Invoke-WebRequest $newUrl -OutFile $filePath
-        Write-Host "File saved with success in " + $filePath 
+        $newUrl = $_.replace("//", "https://")
+        
+        $fullFilePath = $using:folderName + "image_" + $counter.ToString() + ".jpg"
+        Invoke-WebRequest $newUrl -OutFile $fullFilePath
+        Write-Host "File saved with success in " + $fullFilePath
     }
 }
