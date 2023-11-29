@@ -1,17 +1,16 @@
-. ./Get-Images.ps1
+$htmlCatalog = Invoke-WebRequest -Uri "https://boards.4chan.org/wg/catalog"
+$imagesLink = New-Object Collections.Generic.List[String]
 
-$verifyEnv = Is-Windows
-
-If ($verifyEnv) {
-    $supra = "about://"
-} Else {
-    $supra = "//"
+If (Test-Path -Path "index.html" -PathType leaf) {
+    Remove-Item -Path "./index.html"
 }
 
-$html = Invoke-WebRequest -Uri "https://boards.4chan.org/wg/catalog"
+If (-not (Get-Module -ErrorAction Ignore -ListAvailable ThreadJob )) {
+    Install-Module -Name ThreadJob -Scope CurrentUser
+}
 
 New-Item .\index.html -ItemType "file" | out-null
-Set-Content .\index.html -Value $html
+Set-Content .\index.html -Value $htmlCatalog
 
 $htmlParsed = ConvertFrom-Html -Path $pwd/index.html
 $aLink = $htmlParsed.SelectNodes("//script")   
@@ -25,17 +24,39 @@ $json = ConvertFrom-Json $text
 $val = $json.threads -replace "[^0-9\s]"
 $val2 = $val.Split(" ")
 
-ForEach ($siteItem in $val2) {
-    $newSiteUrl = "https://boards.4chan.org/wg/thread/" + $siteItem
-    $arrayImageUrl = Get-Images-Url $newSiteUrl
+ForEach($siteItem in $val2) {
 
-    ForEach ($url in $arrayImageUrl) 
-    {
+    If (Test-Path -Path "index.html" -PathType leaf) {
+        Remove-Item -Path "./index.html"
+    }
+
+    $newSiteUrl = "https://boards.4chan.org/wg/thread/" + $siteItem
+    $html = Invoke-WebRequest -Uri $newSiteUrl
+
+    If (-not (Get-Module -ErrorAction Ignore -ListAvailable PowerHTML)) {
+        Write-Verbose "Installing PowerHTML module for the current user..."
+        Install-Module PowerHTML -ErrorAction Stop
+    }
+
+    Import-Module -ErrorAction Stop PowerHTML  
+
+    New-Item .\index.html -ItemType "file" | out-null
+    Set-Content .\index.html -Value $html
+
+    $htmlParsed = ConvertFrom-Html -Path $pwd/index.html
+    $aLink = $htmlParsed.SelectNodes("//a[contains(@class, 'fileThumb')]")
+    
+    ForEach ($hn In $aLink) {
+        $hrefValue = $hn.GetAttributeValue("href", "");
+        $imagesLink.Add($hrefValue)
+    }
+
+    ForEach ($url in $imagesLink) {
         $counter++
 
-        $newUrl = $url.replace($supra, "https://")
+        $newUrl = $url.replace("//", "https://")
         $dataAtual = Get-Date -Format "yyyy/MM/dd"
-        $folderName = "./4chan_images/"+ $dataAtual +"/"+ $siteItem
+        $folderName = "./4chan_images/" + $dataAtual + "/" + $siteItem
 
         If (-Not(Test-Path $folderName)) {
             New-Item $folderName -ItemType Directory
@@ -48,5 +69,4 @@ ForEach ($siteItem in $val2) {
 
     $counter = 0
 }
-
 
